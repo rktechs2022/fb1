@@ -2,19 +2,18 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 function App() {
 
-
     const [a, seta] = useState([])
-    const [ob1, setob1] = useState({
+    const [ob, setob] = useState({
         name: "",
-        email: ""
+        email: "",
+        phone: "",
+        password: "",
+        country: "",
+        city: "",
+        state: "",
+        gender: "male",
+        status: false
     })
-
-    const [ob2, setob2] = useState({
-        id: "",
-        name: "",
-        email: ""
-    })
-
     const transform = ob => {
         let temp = []
         let x = Object.keys(ob)
@@ -30,83 +29,70 @@ function App() {
         return temp
     }
 
-    const insert = () => {
-        axios.post(`https://reactfb1-4a480-default-rtdb.firebaseio.com/users.json`, ob1)
-            .then(res => res?.data?.name)
-            .then(id => ({ ...ob1, id }))
-            .then(d => seta([...a, d]))
+    const handleChange = e => {
+        let name = e.target.name
+        let value = e.target.value
+        // console.log(name, value)
+        setob({ ...ob, [name]: value })
+    }
+    const handleCheckbox = () => {
+        // console.log(ob.status)
+        setob({ ...ob, status: !ob.status })
+    }
+    const create = () => {
+        let url = `https://reactfb1-4a480-default-rtdb.firebaseio.com/customers.json`
+        axios.post(url, ob)
     }
 
-    const edit = (user) => {
-        setob2(user)//user is loop of table that contains id,name,email
-    }
-
-    const del = (id) => {
-        axios.delete(`https://reactfb1-4a480-default-rtdb.firebaseio.com/users/${id}.json`)
-            .then(res => a.filter(x => x.id !== id))
+    const loadUser = () => {
+        let url = `https://reactfb1-4a480-default-rtdb.firebaseio.com/customers.json`
+        axios.get(url)
+            .then(d => d.data)
+            .then(d => transform(d))
             .then(d => seta(d))
-
     }
-
-    const update = () => {
-        axios.patch(`https://reactfb1-4a480-default-rtdb.firebaseio.com/users/${ob2.id}.json`, ob2)
-            .then(res => console.log(res.data))
-    }
-
-    const handleChange1 = e => {
-        console.log(e.target.name, e.target.value)
-        setob1({ ...ob1, [e.target.name]: e.target.value })
-    }
-    const handleChange2 = e => {
-        console.log(e.target.name, e.target.value)
-        setob2({ ...ob2, [e.target.name]: e.target.value })
-    }
-
-
-    const loadUsers = () => {
-        axios.get(`https://reactfb1-4a480-default-rtdb.firebaseio.com/users.json`)
-            .then(res => transform(res.data))
-            .then(d => {
-                console.log(d)
-                seta(d)
-            })
-
-    }
-
-
-    useEffect(loadUsers, [])
-
+    useEffect(loadUser, [])
     return <div>
         <h1>CRUD</h1>
         <div>
-            <h3>insert form</h3>
-            <input placeholder='name' value={ob1.name} onChange={handleChange1} name="name" />
-            <input placeholder='email' value={ob1.email} onChange={handleChange1} name="email" />
-            <button onClick={insert}>insert</button>
+            <h1>insert form</h1>
+            <input name="name" value={ob.name} placeholder="name" onChange={handleChange} />
+            <input name="email" value={ob.email} placeholder="email" onChange={handleChange} />
+            <input name="phone" value={ob.phone} placeholder="phone" onChange={handleChange} />
+            <input name="password" value={ob.password} placeholder="password" onChange={handleChange} />
+            <input name="country" value={ob.country} placeholder="country" onChange={handleChange} />
+            <input name="city" value={ob.city} placeholder="city" onChange={handleChange} />
+            <input name="state" value={ob.state} placeholder="state" onChange={handleChange} />
+            <input name="gender" value={ob.gender} placeholder="gender" onChange={handleChange} />
+            <input name="status" type="checkbox" checked={ob.status} placeholder="status" onChange={handleCheckbox} />
+            <button onClick={create}>create</button>
         </div>
-        {ob2?.id && <div>
-            <h3>edit form</h3>
-            <input placeholder='name' value={ob2.name} onChange={handleChange2} name="name" />
-            <input placeholder='email' value={ob2.email} onChange={handleChange2} name="email" />
-            <button onClick={update}>update</button>
-        </div>}
 
-
-        <h2>all users {a?.length}</h2>
         <table>
-            <th>id</th>
-            <th>name</th>
-            <th>email</th>
-            <th>actions</th>
-            {a?.map(x => <tr>
-                <td>{x?.id}</td>
-                <td>{x?.name}</td>
-                <td>{x?.email}</td>
-                <td>
-                    <button onClick={() => edit(x)}>edit</button>
-                    <button onClick={() => del(x?.id)}>delete</button>
-                </td>
-            </tr>)}
+            <thead>
+                <tr>
+                    <th>name</th>
+                    <th>email</th>
+                    <th>phone</th>
+                    <th>password</th>
+                    <th>country</th>
+                    <th>city</th>
+                    <th>state</th>
+                    <th>gender</th>
+                </tr>
+            </thead>
+            <tbody>
+                {a.map(x => <tr key={x.id}>
+                    <td>{x.name}</td>
+                    <td>{x.email}</td>
+                    <td>{x.phone}</td>
+                    <td>{x.password}</td>
+                    <td>{x.country}</td>
+                    <td>{x.city}</td>
+                    <td>{x.state}</td>
+                    <td>{x.gender}</td>
+                </tr>)}
+            </tbody>
         </table>
     </div>
 }

@@ -22,8 +22,7 @@ function App() {
         for (let i = 0; i < x.length; i++) {
             temp.push({
                 id: x[i],
-                name: y[i].name,
-                email: y[i].email,
+                ...y[i],
             })
         }
         return temp
@@ -42,6 +41,9 @@ function App() {
     const create = () => {
         let url = `https://reactfb1-4a480-default-rtdb.firebaseio.com/customers.json`
         axios.post(url, ob)
+            .then(res => res.data.name)
+            .then(d => ({ ...ob, id: d }))
+            .then(d => seta([...a, d]))
     }
 
     const loadUser = () => {
@@ -82,7 +84,7 @@ function App() {
                 </tr>
             </thead>
             <tbody>
-                {a.map(x => <tr key={x.id}>
+                {a.map(x => <tr bgColor={!x.status ? "tomato" : "white"} key={x.id}>
                     <td>{x.name}</td>
                     <td>{x.email}</td>
                     <td>{x.phone}</td>
